@@ -2,7 +2,7 @@ name: Deploy All Vue Projects
 
 on:
   push:
-    branches: [ "main" ] # Change to "master" if your branch is named master
+    branches: [ "main" ] # Use "master" if your primary branch is named master
 
 permissions:
   contents: read
@@ -20,44 +20,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          # We removed the 'cache' line here to prevent "Lock file not found" errors
 
-      - name: Build All Projects
+      - name: Build and Organize
         run: |
-          # 1. Create the final website container
           mkdir -p final_site
-          
-          # 2. Get your repo name (e.g., "vuejs")
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
 
-          # 3. Loop through every subdirectory
+          # Loop through every folder that has a package.json
           for dir in */; do
-            # Only process if there is a package.json and it's not the final folder
             if [ -f "${dir}package.json" ] && [ "$dir" != "final_site/" ]; then
               folder_name=${dir%/}
-              echo "------------------------------------------"
-              echo "🚀 Building project: $folder_name"
-              echo "------------------------------------------"
+              echo "Building $folder_name..."
               
               cd "$folder_name"
               npm install
               
-              # THE MAGIC OVERRIDE: 
-              # Forces the app to look for files in /repo/folder/
+              # Force the base path so links don't break on GitHub Pages
               npx vite build --base="/$REPO_NAME/$folder_name/"
               
               cd ..
               
-              # Move the built files into the organized final folder
+              # Copy the build results to the subfolder in our final site
               mkdir -p "final_site/$folder_name"
               cp -r "${dir}dist/"* "final_site/$folder_name/"
             fi
           done
-
-          # 4. Copy a root index.html if you have one
-          if [ -f "index.html" ]; then
-            cp index.html final_site/
-          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -68,5 +56,4 @@ jobs:
           path: './final_site'
 
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
