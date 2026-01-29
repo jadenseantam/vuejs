@@ -2,50 +2,65 @@ name: Multi-Project Auto Deploy
 
 on:
   push:
-    branches: [ "main" ] # Runs every time you push to main
+    branches: [ "main" ] # Runs every time you push to the main branch
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
 jobs:
-  build-all:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Build and Organize Projects
+      - name: Build All Projects
         run: |
-          mkdir -p final_site
-          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          # 1. Create a container folder for the whole website
+          mkdir -p final_output
           
-          # Loop through every folder in the repo
+          # 2. Get the repository name (e.g., "vuejs")
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+
+          # 3. Loop through every subdirectory
           for dir in */; do
-            if [ -f "$dir/package.json" ]; then
+            # Check if it's a project folder (contains package.json)
+            if [ -f "${dir}package.json" ]; then
               folder_name=${dir%/}
-              echo "🚀 Building $folder_name..."
+              echo "------------------------------------------"
+              echo "🚀 Processing project: $folder_name"
+              echo "------------------------------------------"
               
               cd "$folder_name"
+              
+              # Install dependencies
               npm install
               
-              # THE MAGIC TRICK: We override the 'base' path right here!
-              # This ensures it works at your-username.github.io/repo/folder/
+              # Build the project with a dynamic BASE path
+              # This forces it to work at username.github.io/repo/folder/
               npx vite build --base="/$REPO_NAME/$folder_name/"
               
               cd ..
               
-              # Move the build files to the final structure
-              mkdir -p "final_site/$folder_name"
-              cp -r "$folder_name/dist/"* "final_site/$folder_name/"
+              # Move the built files to the correct subfolder in final_output
+              mkdir -p "final_output/$folder_name"
+              cp -r "${dir}dist/"* "final_output/$folder_name/"
             fi
           done
+
+          # 4. Optional: Copy a root index.html if you have one in your main folder
+          if [ -f "index.html" ]; then
+            cp index.html final_output/
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -53,7 +68,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './final_site'
+          path: './final_output'
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
