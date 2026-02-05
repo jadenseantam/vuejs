@@ -28,6 +28,27 @@ function changeTab(designatedTab) {
 .page {
   background: linear-gradient(to left top, rgb(0, 255, 0), rgb(0, 191, 255));
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.container {
+  background-color: rgba(255, 255, 255, .1);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+}
+button {
+  background-color: rgba(255, 255, 255, .1);
+  padding: 10px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+  border: none;
+  margin: 5px;
+  transition: all .3s ease;
+}
+button:hover {
+    background-color: rgba(255, 255, 255, .4);
+}
 </style>
