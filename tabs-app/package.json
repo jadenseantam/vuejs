@@ -1,5 +1,5 @@
 {
-  "name": "todo-app-advanced",
+  "name": "tabs-app",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,14 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.27",
-    "vue-router": "^5.0.1"
+    "vue": "^3.5.27"
   },
   "devDependencies": {
-    "@iconify/vue": "^5.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
-    "sass": "^1.97.3",
-    "uid": "^2.0.2",
     "vite": "^7.3.1",
     "vite-plugin-vue-devtools": "^8.0.5"
   },
