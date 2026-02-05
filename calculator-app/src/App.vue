@@ -43,7 +43,7 @@ const evaluate = () => {
       <button @click="append('-')">-</button>
       <button @click="append('.')">.</button>
       <button @click="append('.')">0</button>
-      <button @click="append('0')">00</button>
+      <button @click="append('00')">00</button>
       <button @click="append('+')">+</button>
       <button class="span-two" @click="evaluate()">=</button>
       <button class="span-two" @click="clearInput()">C</button>
